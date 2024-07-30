@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 
 function App() {
   const [length, setlength] = useState(8);
@@ -12,13 +12,24 @@ function App() {
     if (num) str += "0123456789";
     if (char) str += "!@#$%&*";
 
-    for (let i = 1; i < array.length; i++) {
+    for (let i = 1; i <= length; i++) {
       let char = Math.floor(Math.random() * str.length + 1);
-      let pass = str.charAt(char);
+      pass += str.charAt(char);
     }
 
     setpas(pass);
   }, [length, num, char, setpas]);
+
+  const copyToClipboard = useCallback(() => {
+    pasf.current?.select();
+    window.navigator.clipboard.writeText(pas);
+  }, [pas]);
+
+  useEffect(() => {
+    passwordGen();
+  }, [length, num, char, passwordGen]);
+
+  const pasf = useRef(null);
 
   return (
     <>
@@ -27,11 +38,16 @@ function App() {
         <div className="flex shadow rounded-lg overflow-hidden mb-4">
           <input
             type="text"
+            value={pas}
             className="outline-none w-full py-1 px-3"
             placeholder="Password"
+            ref={pasf}
             readOnly
           />
-          <button className="outline-none bg-blue-700 text-white px-3 py-0.5 shrink-0">
+          <button
+            onClick={copyToClipboard}
+            className="outline-none bg-blue-700 text-white px-3 py-0.5 shrink-0"
+          >
             copy
           </button>
         </div>
@@ -54,7 +70,7 @@ function App() {
               type="checkbox"
               id="numberInput"
               onChange={() => {
-                setchar((priv) => !priv);
+                setnum((priv) => !priv);
               }}
             />
             <label htmlFor="numberInput">Numbers</label>
